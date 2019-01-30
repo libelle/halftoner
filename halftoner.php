@@ -15,7 +15,7 @@ $defaults = array(
 );
 $shapes = array('c'=>'circles','h'=>'hexagons',
     'd'=>'Stars of David','s'=>'Spikey Stars',
-    'H'=>'Hearts (SVG only)','l'=>'horizontal "engraving" lines (SVG only)',
+    'a'=>'Hearts (SVG only)','l'=>'horizontal "engraving" lines (SVG only)',
     'w'=>'wavy horizontal "engraving" lines (SVG only)');
 $avg_algs = array(
     '1' => 'single cell',
@@ -132,7 +132,7 @@ for ($row = 0; $row < $proc_imagey; $row += 2)
     $lum_row_idx++;
 }
 
-$ratio = 1 / $lmax;
+$ratio = 1 / ($lmax - $lmin);
 $roff = 0;
 
 if ($set['shape'] == 'w' || $set['shape'] == 'l')
@@ -148,19 +148,15 @@ if ($set['shape'] == 'w' || $set['shape'] == 'l')
             $blum = $data[$row][$col];
 
             if ($set['equalize'])
-                $blum = $blum * $ratio;
+                $blum = ($blum - $lmin) * $ratio;
 
             $lum = min($set['percent']/100, $blum);
-            if ($lum < $lmin)
-                $lmin = $lum;
-            else if ($lum > $lmax)
-                $lmax = $lum;
-
             $val = $block * $lum;
+
             if ($lum > $lthresh)
             {
                 $row_mag[0][] = floor($col * 2 * $block + ($roff * $block));
-                $row_mag[1][] = $val/2;
+                $row_mag[1][] = $val*0.85;
                 $open = true;
             }
             if ($lum <= $lthresh || $col == $lum_col_idx-1)
@@ -230,14 +226,9 @@ else
             $blum = $data[$row][$col];
 
             if ($set['equalize'])
-                $blum = $blum * $ratio;
+                $blum = ($blum - $lmin) * $ratio;
 
             $lum = min($set['percent']/100, $blum);
-
-            if ($lum < $lmin)
-                $lmin = $lum;
-            else if ($lum > $lmax)
-                $lmax = $lum;
 
             $val = $block * $lum;
             if ($lum > $lthresh)
@@ -279,7 +270,7 @@ else
                             pow($pts[$i] - $pts[$i - 2], 2));
                     }
                 }
-                else if ($set['shape'] == 'H')
+                else if ($set['shape'] == 'a')
                 {
                     $svgpts = heart($cx, $cy, $val);
                     $nonsvgpts = array_values(array_filter($svgpts, 'is_numeric'));
@@ -310,7 +301,7 @@ if ($set['jpg'])
     imagejpeg($half, spec($options['s'], 'halftone_inv', $set, 'jpg'));
 }
 
-if ($set['verbose']) echo "-> writing svg\n";
+if ($set['verbose']) echo "-> writing svg: ".spec($options['s'], '', $set, 'svg')."\n" ;
 fwrite($out, "</svg>\n");
 fclose($out);
 
