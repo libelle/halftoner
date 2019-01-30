@@ -268,7 +268,7 @@ else
                 }
                 else if ($set['shape'] == 'd' || $set['shape'] == 's')
                 {
-                    $pts = top_pointy_star($cx, $cy, $val, ($shape == 'd' ? 0.70 : 0.45));
+                    $pts = top_pointy_star($cx, $cy, $val, ($set['shape'] == 'd' ? 0.70 : 0.45));
                     if ($set['jpg'])
                         imagefilledpolygon($half, $pts, count($pts) / 2, $ccol);
                     fwrite($out, "<polygon points=\"" . implode(',', $pts) . "\" fill=\"black\" />\n");
@@ -481,9 +481,10 @@ function spec($src, $suffix, $settings, $ext)
     $out = '';
     $bits = pathinfo($src);
     $out = $bits['filename'] . (!empty($suffix) ? '_' . $suffix : '');
-    $out .= '-d' . $settings['dots'] . $settings['shape'];
+    $out .= '-d' . $settings['dots'] . '-s'.$settings['shape'];
     $out .= '-p' . $settings['percent'];
     $out .= '-a' . $settings['avg_alg'];
+    $out .= '-t' . $settings['lumin_thresh'];
     $out .= ($settings['equalize'] ? '-e' : '');
     $out .= ($settings['invert'] ? '-i' : '');
     return $out . '.' . $ext;
